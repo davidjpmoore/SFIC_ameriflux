@@ -123,7 +123,6 @@ AG_LIT_CHEM_count = AG_LIT_CHEM  %>%
 #Summary plot by site
 BySite = ggplot(AG_LIT_CHEM_count, aes(mean_LIT_C, SITE_ID))
 BySite + geom_point(size=2, shape=1, fill="black", colour="black", stroke=1.2) + theme_bw()
-            
 
 plot(LAI_count$SITE_ID, LAI_count$mean_LAI)
 
