@@ -17,14 +17,17 @@ for (i in 1:length(files)) assign(NameDFs[i], read.csv(files[i]))
 
 LAI = LAI %>%
   group_by(SITE_ID) %>%
-  mutate (Year = substr(LAI_DATE,1,4), Month=substr(LAI_DATE,5,6), Day = substr(LAI_DATE,7,8), GoodDate =) %>%
+  mutate (Year = substr(LAI_DATE,1,4), Month=substr(LAI_DATE,5,6), Day = substr(LAI_DATE,7,8)) %>%
   mutate(meanLAI=mean(LAI_TOT), N_LAI=n(), maxLAI=max(LAI_TOT))
 
 
 ### ACTION
 #Create summary table with 1) number of observations for each site & 2) mean/median interval between observations
 #Rank sites by number of observations
+library(data.table)
+TestCount = LAI%>% count(SITE_ID) 
 
+plot(TestCount$SITE_ID, TestCount$n)
 
 #Summary plot by site
 BySite = ggplot(LAI, aes(LAI_TOT, SITE_ID))
