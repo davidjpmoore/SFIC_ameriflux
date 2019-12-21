@@ -6,6 +6,8 @@
 #########################################################################################
 library(tidyverse)
 library(readr)
+library(data.table)
+
 #get list of all files in folder
 files <- list.files(path = "data/BADM/", pattern = "*.csv", full.names = T)
 Name1= sub('.*GRP_', '',files)
@@ -14,24 +16,116 @@ NameDFs = sub("\\..*", "", Name1)
 #   bind_rows(.id = "id")
 for (i in 1:length(files)) assign(NameDFs[i], read.csv(files[i]))
 
-
 LAI = LAI %>%
   group_by(SITE_ID) %>%
   mutate (Year = substr(LAI_DATE,1,4), Month=substr(LAI_DATE,5,6), Day = substr(LAI_DATE,7,8)) %>%
   mutate(meanLAI=mean(LAI_TOT), N_LAI=n(), maxLAI=max(LAI_TOT))
 
+plot(AG_BIOMASS_CROP$SITE_ID)
 
 ### ACTION
 #Create summary table with 1) number of observations for each site & 2) mean/median interval between observations
 #Rank sites by number of observations
-library(data.table)
-TestCount = LAI%>% count(SITE_ID) 
 
-plot(TestCount$SITE_ID, TestCount$n)
+LAI_count = LAI%>% count(SITE_ID) %>% filter(n>1) 
+AG_BIOMASS_CROP_count = AG_BIOMASS_CROP %>% count(SITE_ID) %>% filter(n>1) 
+AG_BIOMASS_GRASS_count = AG_BIOMASS_GRASS %>% count(SITE_ID) %>% filter(n>1) 
+AG_BIOMASS_OTHER_count = AG_BIOMASS_OTHER %>% count(SITE_ID) %>% filter(n>1) 
+AG_BIOMASS_SHRUB_count = AG_BIOMASS_SHRUB %>% count(SITE_ID) %>% filter(n>1) 
+AG_BIOMASS_TREE_count = AG_BIOMASS_TREE %>% count(SITE_ID) %>% filter(n>1) 
+AG_LIT_BIOMASS_count = AG_LIT_BIOMASS %>% count(SITE_ID) %>% filter(n>1) 
+
+
+#LAI TESTS
+LAI_count = LAI %>%
+  filter(!is.na(LAI_TOT)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_LAI = n(), 
+            mean_LAI = mean(LAI_TOT),
+            std_dev = sd(LAI_TOT),
+            max_LAI = max(LAI_TOT)) 
+
+#AB_Biomass
+#CROP
+AG_BIOMASS_CROP_count = AG_BIOMASS_CROP  %>%
+  filter(!is.na(AG_BIOMASS_CROP)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_AGB_CROP = n(), 
+            mean_AGB_crop = mean(AG_BIOMASS_CROP),
+            std_dev_AGB_crop = sd(AG_BIOMASS_CROP),
+            max_AGB_crop = max(AG_BIOMASS_CROP)) 
+
+
+#GRASS
+AG_BIOMASS_GRASS_count = AG_BIOMASS_GRASS  %>%
+  filter(!is.na(AG_BIOMASS_GRASS)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_AGB_GRASS = n(), 
+            mean_AGB_GRASS = mean(AG_BIOMASS_GRASS),
+            std_dev_AGB_GRASS = sd(AG_BIOMASS_GRASS),
+            max_AGB_GRASS = max(AG_BIOMASS_GRASS)) 
+
+#OTHER
+AG_BIOMASS_OTHER_count = AG_BIOMASS_OTHER  %>%
+  filter(!is.na(AG_BIOMASS_OTHER)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_AGB_OTHER = n(), 
+            mean_AGB_OTHER = mean(AG_BIOMASS_OTHER),
+            std_dev_AGB_OTHER = sd(AG_BIOMASS_OTHER),
+            max_AGB_OTHER = max(AG_BIOMASS_OTHER)) 
+
+
+
+
+#SHRUB
+AG_BIOMASS_SHRUB_count = AG_BIOMASS_SHRUB  %>%
+  filter(!is.na(AG_BIOMASS_SHRUB)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_AGB_SHRUB = n(), 
+            mean_AGB_SHRUB = mean(AG_BIOMASS_SHRUB),
+            std_dev_AGB_SHRUB = sd(AG_BIOMASS_SHRUB),
+            max_AGB_SHRUB = max(AG_BIOMASS_SHRUB)) 
+
+
+
+#TREE
+AG_BIOMASS_TREE_count = AG_BIOMASS_TREE  %>%
+  filter(!is.na(AG_BIOMASS_TREE)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_AGB_TREE = n(), 
+            mean_AGB_TREE = mean(AG_BIOMASS_TREE),
+            std_dev_AGB_TREE = sd(AG_BIOMASS_TREE),
+            max_AGB_TREE = max(AG_BIOMASS_TREE)) 
+
+#LITTER
+AG_LIT_BIOMASS_count = AG_LIT_BIOMASS  %>%
+  filter(!is.na(AG_LIT_BIOMASS)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_LIT_BIOMASS = n(), 
+            mean_LIT_BIOMASS = mean(AG_LIT_BIOMASS),
+            std_dev_LIT_BIOMASS = sd(AG_LIT_BIOMASS),
+            max_LIT_BIOMASS = max(AG_LIT_BIOMASS)) 
+
+AG_LIT_CHEM_count = AG_LIT_CHEM  %>%
+  filter(!is.na(AG_LIT_N)) %>%
+  group_by(SITE_ID) %>%
+  summarize(N_LIT_C = n(), 
+            mean_LIT_C = mean(AG_LIT_C),
+            mean_LIT_N = mean(AG_LIT_N),
+            std_dev_LIT_C = sd(AG_LIT_C),
+            std_dev_LIT_N = sd(AG_LIT_N),
+            max_LIT_C = max(AG_LIT_C),
+            max_LIT_N = max(AG_LIT_N),
+            max_LIT_CN_RATIO = max(AG_LIT_CN_RATIO)) 
+
+
 
 #Summary plot by site
-BySite = ggplot(LAI, aes(LAI_TOT, SITE_ID))
-BySite + geom_point()
+BySite = ggplot(AG_LIT_CHEM_count, aes(mean_LIT_C, SITE_ID))
+BySite + geom_point(size=2, shape=1, fill="black", colour="black", stroke=1.2) + theme_bw()
+            
+
+plot(LAI_count$SITE_ID, LAI_count$mean_LAI)
 
 
 
