@@ -31,6 +31,7 @@ BySite = ggplot(LAI, aes(LAI_TOT, SITE_ID))
 BySite + geom_point()
 
 
+
 #Summary plot by month (climatology)
 LAI_Ctology = ggplot(LAI, aes(Month,LAI_TOT))
 LAI_Ctology +  geom_point(size=2, shape=1, fill="black", colour="black", stroke=1.2) +
